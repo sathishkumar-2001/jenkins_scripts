@@ -1,11 +1,33 @@
 node {
-    stage('Build') {
-        echo 'Building...'
-    }
-    stage('Test') {
-        echo 'Testing...'
-    }
-    stage('Deploy') {
-        echo 'Deploying...'
+    try {
+        stage('Checkout') {
+            echo 'Cloning repository...'
+            checkout([
+                $class: 'GitSCM', 
+                branches: [[name: '*/main']],
+                userRemoteConfigs: [[url: 'https://github.com/MaheshRautrao/React-Todo-list.git']]
+            ])
+        }
+
+        stage('Install Dependencies') {
+            echo 'Installing npm dependencies...'
+            sh 'npm install'
+        }
+
+        stage('Build Application') {
+            echo 'Building the application...'
+            sh 'npm run build'
+        }
+
+        stage('Post-Build Cleanup') {
+            echo 'Running cleanup...'
+            sh 'npm cache clean --force'
+        }
+
+        echo 'Pipeline completed successfully!'
+    } catch (Exception e) {
+        echo "Pipeline failed: ${e.message}"
+        currentBuild.result = 'FAILURE'
+        throw e
     }
 }
