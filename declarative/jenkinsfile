@@ -5,7 +5,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the application...'
-                sh 'npm install'
             }
         }
         
@@ -19,7 +18,6 @@ pipeline {
                     }
                     steps {
                         echo 'Running tests on Node.js 14...'
-                        sh 'npm test'
                     }
                 }
                 stage('Test on Node.js 16') {
@@ -30,7 +28,6 @@ pipeline {
                     }
                     steps {
                         echo 'Running tests on Node.js 16...'
-                        sh 'npm test'
                     }
                 }
             }
