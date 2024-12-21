@@ -1,20 +1,59 @@
 pipeline {
     agent any
+
     stages {
         stage('Build') {
             steps {
-                echo 'Building...'
+                echo 'Building the application...'
+                sh 'npm install'
             }
         }
+        
         stage('Test') {
-            steps {
-                echo 'Testing...'
+            parallel {
+                stage('Test on Node.js 14') {
+                    agent {
+                        docker {
+                            image 'node:14'
+                        }
+                    }
+                    steps {
+                        echo 'Running tests on Node.js 14...'
+                        sh 'npm test'
+                    }
+                }
+                stage('Test on Node.js 16') {
+                    agent {
+                        docker {
+                            image 'node:16'
+                        }
+                    }
+                    steps {
+                        echo 'Running tests on Node.js 16...'
+                        sh 'npm test'
+                    }
+                }
             }
         }
+        
         stage('Deploy') {
             steps {
-                echo 'Deploying...'
+                echo 'Deploying the application to staging...'
+                // Simulate deployment
+                sh 'echo "Deploying application to staging server..."'
             }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline execution complete.'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
