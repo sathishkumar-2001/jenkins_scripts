@@ -25,6 +25,11 @@ node {
             sh "mkdir -p ${deployDir}"
             sh "cp -r build/* ${deployDir}/"
             echo "Application deployed to ${deployDir}"
+
+            echo 'Setting up a simple HTTP server to serve the application...'
+            sh 'npm install -g serve'
+            sh "serve -s ${deployDir} -l 5000 &"
+            echo 'Application is now being served on port 5000.'
         }
 
         stage('Post-Build Cleanup') {
