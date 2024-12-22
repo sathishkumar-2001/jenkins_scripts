@@ -27,8 +27,8 @@ node {
             echo "Application deployed to ${deployDir}"
 
             echo 'Setting up a simple HTTP server to serve the application...'
-            sh 'npm install -g serve'
-            sh "serve -s ${deployDir} -l 5000 &"
+            sh 'npm install serve'
+            sh "npx serve -s ${deployDir} -l 5000 &"
             echo 'Application is now being served on port 5000.'
         }
 
