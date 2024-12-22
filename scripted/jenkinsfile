@@ -19,6 +19,14 @@ node {
             sh 'npm run build'
         }
 
+        stage('Deploy Application') {
+            echo 'Deploying the application...'
+            def deployDir = '/var/www/react-todo-list'
+            sh "mkdir -p ${deployDir}"
+            sh "cp -r build/* ${deployDir}/"
+            echo "Application deployed to ${deployDir}"
+        }
+
         stage('Post-Build Cleanup') {
             echo 'Running cleanup...'
             sh 'npm cache clean --force'
