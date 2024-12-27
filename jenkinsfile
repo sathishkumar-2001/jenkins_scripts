@@ -3,7 +3,9 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/sathishkumar-2001/jenkins_scripts.git'
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: '*/main']], 
+                          userRemoteConfigs: [[url: 'https://github.com/sathishkumar-2001/jenkins_scripts.git']]])
             }
         }
         stage('Build') {
