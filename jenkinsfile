@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/sathishkumar-2001/jenkins-test.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo "Building..."
+                // Add build commands (e.g., mvn clean install, npm install)
+            }
+        }
+        stage('Test') {
+            steps {
+                echo "Running Tests..."
+                // Add test commands
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo "Deploying Application..."
+                // Add deployment commands (e.g., Docker, SCP to server)
+            }
+        }
+    }
+}
