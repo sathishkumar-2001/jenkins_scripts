@@ -1,0 +1,246 @@
+jenkins installation
+https://www.jenkins.io/doc/book/installing/linux/
+
+docker run -d --name jenkins -p 8080:8080 -p 50000:50000 jenkins/jenkins:lts
+
+docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+
+
+ Phase 1: Fundamentals
+Jenkins Overview – Architecture, Components, Use Cases.
+
+Installation & Setup – Installing Jenkins on various platforms (local, Docker, Kubernetes, cloud).
+
+Jenkins UI & Configuration – Managing users, authentication, authorization.
+
+Phase 2: Pipeline Basics
+Freestyle vs. Pipeline Jobs – Understanding different job types.
+
+Pipeline Syntax – Declarative vs. Scripted Pipelines.
+
+Creating Basic Pipelines – Writing simple Jenkinsfile, stages, steps.
+
+SCM Integration – Connecting Git, GitHub, GitLab.
+
+Phase 3: Advanced Pipelines & Automation
+Pipeline as Code (Jenkinsfile) – Parameters, conditionals, parallel execution.
+
+Groovy Scripting – Writing functions, shared libraries.
+
+Multibranch & Dynamic Pipelines – Working with feature branches.
+
+Jenkins Agents & Nodes – Distributed builds, setting up worker nodes.
+
+Phase 4: Security & Best Practices
+Security Hardening – RBAC, Secrets Management, Credentials.
+
+Backup & Disaster Recovery – Managing Jenkins backup strategies.
+
+Phase 5: Integrations & Plugins
+GitHub, GitLab, Bitbucket Webhooks – Triggering builds.
+
+Artifact Management – Integrating with JFrog Artifactory, Nexus.
+
+Containerization & Orchestration – Running Jenkins in Kubernetes, Docker.
+
+Phase 6: Scaling & Performance Optimization
+Monitoring & Logging – Using Prometheus, Grafana, ELK Stack for Jenkins monitoring.
+
+Scaling Jenkins – High Availability, Master-Agent Architecture.
+
+Phase 7: CI/CD Best Practices & Real-World Use Cases
+Complete CI/CD Setup – Deploying apps to AWS, Kubernetes.
+
+Jenkins with Infrastructure as Code – Terraform, Ansible, Helm.        
+
+
+
+Jenkins is an open-source automation server used for CI/CD (Continuous Integration/Continuous Deployment). It helps automate building, testing, and deploying applications.
+
+Jenkins Architecture
+Jenkins follows a master-agent architecture:
+
+Jenkins Master: Handles UI, job scheduling, and management.
+
+Jenkins Agents (Nodes): Execute jobs as instructed by the master.
+
+
+
+Pipeline Syntax: Declarative vs. Scripted Pipelines
+
+Declarative Pipeline (Recommended)
+A structured syntax that makes pipelines easier to read and maintain.
+
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+            }
+        }
+    }
+}
+
+
+Scripted Pipeline
+More flexible but requires Groovy scripting knowledge.
+
+node {
+    stage('Build') {
+        echo 'Building the application...'
+    }
+    stage('Test') {
+        echo 'Running tests...'
+    }
+    stage('Deploy') {
+        echo 'Deploying application...'
+    }
+}
+
+
+Phase 3: Advanced Pipelines & Automation 🚀
+Now that you understand basic Jenkins pipelines, let's move on to advanced topics:
+
+1️⃣ Pipeline as Code (Jenkinsfile Best Practices)
+2️⃣ Groovy Scripting & Shared Libraries
+3️⃣ Multibranch & Dynamic Pipelines
+4️⃣ Jenkins Agents & Distributed Builds
+
+
+✅ Best Practices:
+✔ Use parameters to make pipelines dynamic.
+✔ Store secrets in Jenkins Credentials.
+✔ Add error handling to avoid pipeline failures.
+✔ Use parallel execution to speed up builds.
+
+
+pipeline {
+    agent any
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to build')
+    }
+    stages {
+        stage('Clone') {
+            steps {
+                git branch: "${params.BRANCH_NAME}", url: 'https://github.com/your-repo.git'
+            }
+        }
+    }
+}
+
+
+my-shared-library is the name of a Shared Library that is registered in Jenkins. It is hardcoded because it refers to a predefined Jenkins configuration where your Shared Library is stored.
+
+
+
+GitHub Webhook for Auto-Builds
+
+Steps to Configure Webhook in GitHub
+Go to your GitHub repo → Settings → Webhooks
+
+Click Add webhook
+
+In Payload URL, enter:
+http://<your-jenkins-url>/github-webhook/
+
+Select application/json
+
+Choose Just the push event
+
+Click Add webhook
+
+pipeline {
+    agent any
+    triggers {
+        githubPush()
+    }
+    stages {
+        stage('Clone') {
+            steps {
+                git 'https://github.com/your-repo.git'
+            }
+        }
+    }
+}
+
+
+
+Securing Credentials in Jenkins
+Instead of hardcoding passwords/API keys, use Jenkins Credentials Store.
+
+
+pipeline {
+    agent any
+    environment {
+        SECRET_TOKEN = credentials('my-secret-token')
+    }
+    stages {
+        stage('Use Secret') {
+            steps {
+                script {
+                    sh "echo My token is ${SECRET_TOKEN}" // Will NOT display token in logs
+                }
+            }
+        }
+    }
+}
+
+
+Backup & Disaster Recovery in Jenkins
+
+0 2 * * * tar -czvf /backups/jenkins_backup_$(date +\%F).tar.gz /var/lib/jenkins
+
+Using the ThinBackup Plugin (GUI)
+📌 Best for small Jenkins instances
+
+
+Jenkins Disaster Recovery (DR) Strategy
+
+Active-Passive Setup (Secondary Jenkins Server)
+Run a standby Jenkins server that stays updated with the latest backup.
+Steps:
+1️⃣ Set up a secondary Jenkins instance
+2️⃣ Sync backups every hour:
+rsync -avz /var/lib/jenkins secondary-server:/var/lib/jenkins
+3️⃣ If primary Jenkins fails, switch to the secondary server.
+✅ Benefit: Minimal downtime (failover within minutes).
+
+ Jenkins High Availability (Active-Active)
+Use Kubernetes + Load Balancer to distribute traffic across multiple Jenkins nodes.
+
+
+Jenkins Performance Optimization
+Increase JVM Heap Size
+By default, Jenkins may run out of memory under heavy workloads. Increase the JVM heap size to prevent performance issues.
+
+📌 Modify Jenkins Service Configuration
+Edit the Jenkins configuration file (/etc/default/jenkins or /etc/sysconfig/jenkins) and increase the memory:
+
+JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Xms2g -Xmx4g"
+✅ This sets the minimum memory to 2GB and max to 4GB.
+
+sudo systemctl restart jenkins
+
+
+Limit Build History to Save Storage
+
+ Install Prometheus Plugin
+1️⃣ Go to Manage Jenkins → Manage Plugins
+2️⃣ Install Prometheus Metrics Plugin
+3️⃣ Enable Prometheus Endpoint at http://JENKINS_URL/metrics
+
+✅ Now, Prometheus can scrape Jenkins metrics.
+
+
